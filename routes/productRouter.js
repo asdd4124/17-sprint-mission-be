@@ -72,4 +72,13 @@ productRouter.patch("/:productId", async (req, res) => {
   res.json(product);
 });
 
+// 5. 상품 삭제 (DELETE /products/{productId})
+productRouter.delete("/:productId", async (req, res) => {
+  const product = await Product.findByIdAndDelete(req.params.productId);
+  if (!product) {
+    throw new NotFoundError("상품을 찾을 수 없습니다.");
+  }
+  res.sendStatus(204);
+});
+
 export default productRouter;
