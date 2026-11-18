@@ -4,6 +4,7 @@ import cors from "cors";
 import dbConnect from "./config/dbConnect.js";
 import NotFoundError from "./exceptions/NotFoundError.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import productRouter from "./routes/productRouter.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,6 +22,9 @@ dbConnect();
 app.get("/", (req, res) => {
   res.send("판다마켓 API 서버");
 });
+
+// 상품 API (/products)
+app.use("/products", productRouter);
 
 // 없는 주소 → 404
 app.use((req, res) => {
