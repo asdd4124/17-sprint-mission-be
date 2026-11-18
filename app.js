@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import dbConnect from "./config/dbConnect.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,6 +11,9 @@ app.use(cors());
 
 // 요청 body의 JSON을 req.body 객체로 변환
 app.use(express.json());
+
+// MongoDB 연결
+dbConnect();
 
 // 서버 동작 확인 (GET /)
 app.get("/", (req, res) => {
