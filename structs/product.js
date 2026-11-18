@@ -4,6 +4,7 @@ import {
   number,
   object,
   optional,
+  partial,
   size,
   string,
 } from "superstruct";
@@ -15,3 +16,6 @@ export const CreateProduct = object({
   price: min(number(), 0),
   tags: optional(array(size(string(), 1, 5))),
 });
+
+// 상품 수정 값 검사 (보낸 필드만 같은 규칙으로)
+export const PatchProduct = partial(CreateProduct);

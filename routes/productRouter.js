@@ -3,7 +3,7 @@ import { assert } from "superstruct";
 import Product from "../models/product.js";
 import BadRequestError from "../exceptions/BadRequestError.js";
 import NotFoundError from "../exceptions/NotFoundError.js";
-import { CreateProduct } from "../structs/product.js";
+import { CreateProduct, PatchProduct } from "../structs/product.js";
 
 const productRouter = express.Router();
 
@@ -56,6 +56,20 @@ productRouter.post("/", async (req, res) => {
   assert(req.body, CreateProduct); // 형식이 틀리면 StructError → 400
   const product = await Product.create(req.body);
   res.status(201).json(product);
+});
+
+// 4. 상품 수정 (PATCH /products/{productId})
+productRouter.patch("/:productId", async (req, res) => {
+  assert(req.body, PatchProduct); // 형식이 틀리면 StructError → 400
+  const product = await Product.findByIdAndUpdate(
+    req.params.productId,
+    req.body,
+    { returnDocument: "after" }, // 수정된 상품을 돌려받기
+  );
+  if (!product) {
+    throw new NotFoundError("상품을 찾을 수 없습니다.");
+  }
+  res.json(product);
 });
 
 export default productRouter;
