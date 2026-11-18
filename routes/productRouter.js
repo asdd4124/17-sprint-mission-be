@@ -2,6 +2,7 @@ import express from "express";
 import { assert } from "superstruct";
 import Product from "../models/product.js";
 import BadRequestError from "../exceptions/BadRequestError.js";
+import NotFoundError from "../exceptions/NotFoundError.js";
 import { CreateProduct } from "../structs/product.js";
 
 const productRouter = express.Router();
@@ -37,6 +38,17 @@ productRouter.get("/", async (req, res) => {
   ]);
 
   res.json({ list, totalCount });
+});
+
+// 2. 상품 상세 조회 (GET /products/{productId})
+productRouter.get("/:productId", async (req, res) => {
+  const product = await Product.findById(req.params.productId).select(
+    "name description price tags createdAt",
+  );
+  if (!product) {
+    throw new NotFoundError("상품을 찾을 수 없습니다.");
+  }
+  res.json(product);
 });
 
 // 3. 상품 생성 (POST /products)
