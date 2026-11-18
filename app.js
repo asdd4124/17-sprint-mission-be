@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import dbConnect from "./config/dbConnect.js";
+import NotFoundError from "./exceptions/NotFoundError.js";
+import errorHandler from "./middlewares/errorHandler.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +21,14 @@ dbConnect();
 app.get("/", (req, res) => {
   res.send("판다마켓 API 서버");
 });
+
+// 없는 주소 → 404
+app.use((req, res) => {
+  throw new NotFoundError("요청한 주소를 찾을 수 없습니다.");
+});
+
+// 에러 응답 처리 (항상 맨 마지막)
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`서버 실행 중: http://localhost:${PORT}`);
