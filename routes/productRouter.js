@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import { assert } from "superstruct";
 import Product from "../models/product.js";
 import BadRequestError from "../exceptions/BadRequestError.js";
@@ -6,6 +7,17 @@ import NotFoundError from "../exceptions/NotFoundError.js";
 import { CreateProduct, PatchProduct } from "../structs/product.js";
 
 const productRouter = express.Router();
+
+// 상품이 없을 때 응답 메시지 (상세·수정·삭제 공통)
+const PRODUCT_NOT_FOUND_MESSAGE = "상품을 찾을 수 없습니다.";
+
+// 주소의 productId가 MongoDB id 형식(24자리 16진수)인지 먼저 확인
+productRouter.param("productId", (req, res, next, productId) => {
+  if (!mongoose.isObjectIdOrHexString(productId)) {
+    throw new BadRequestError("잘못된 상품 id 형식입니다.");
+  }
+  next();
+});
 
 // 1. 상품 목록 조회 (GET /products)
 productRouter.get("/", async (req, res) => {
@@ -46,7 +58,7 @@ productRouter.get("/:productId", async (req, res) => {
     "name description price tags createdAt",
   );
   if (!product) {
-    throw new NotFoundError("상품을 찾을 수 없습니다.");
+    throw new NotFoundError(PRODUCT_NOT_FOUND_MESSAGE);
   }
   res.json(product);
 });
@@ -67,7 +79,7 @@ productRouter.patch("/:productId", async (req, res) => {
     { returnDocument: "after" }, // 수정된 상품을 돌려받기
   );
   if (!product) {
-    throw new NotFoundError("상품을 찾을 수 없습니다.");
+    throw new NotFoundError(PRODUCT_NOT_FOUND_MESSAGE);
   }
   res.json(product);
 });
@@ -76,7 +88,7 @@ productRouter.patch("/:productId", async (req, res) => {
 productRouter.delete("/:productId", async (req, res) => {
   const product = await Product.findByIdAndDelete(req.params.productId);
   if (!product) {
-    throw new NotFoundError("상품을 찾을 수 없습니다.");
+    throw new NotFoundError(PRODUCT_NOT_FOUND_MESSAGE);
   }
   res.sendStatus(204);
 });
